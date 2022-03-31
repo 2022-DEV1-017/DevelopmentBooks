@@ -33,9 +33,12 @@ public class DevelopmentBooksService implements IDevelopmentBooksService {
             case 2: {
                 return TWO_DIFFERENT_BOOKS_DISCOUNT;
             }
-            default:
             case 3: {
                 return THREE_DIFFERENT_BOOKS_DISCOUNT;
+            }
+            default:
+            case 4: {
+                return FOUR_DIFFERENT_BOOKS_DISCOUNT;
             }
         }
     }
