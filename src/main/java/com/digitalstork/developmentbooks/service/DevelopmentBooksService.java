@@ -2,10 +2,13 @@ package com.digitalstork.developmentbooks.service;
 
 import com.digitalstork.developmentbooks.dto.BasketDto;
 import com.digitalstork.developmentbooks.dto.BasketPriceDto;
+import com.digitalstork.developmentbooks.dto.BookDto;
 import com.digitalstork.developmentbooks.dto.DiscountDto;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Optional;
 
 import static com.digitalstork.developmentbooks.constants.DevelopmentBooksConstants.*;
 
@@ -14,13 +17,37 @@ public class DevelopmentBooksService implements IDevelopmentBooksService {
 
     @Override
     public BasketPriceDto calculatePrice(BasketDto basket) {
-
-        DiscountDto discount = new DiscountDto();
-        discount.setRate(calculateDiscount(basket.getBookQuantities().size()));
-        discount.setUnitPrice(BOOK_PRICE * (1 - discount.getRate()));
-
         BasketPriceDto basketPrice = new BasketPriceDto();
-        basketPrice.setDiscounts(Collections.singleton(discount));
+        basketPrice.setDiscounts(new ArrayList<>());
+
+        // calculate maximum number of copies of the same different books
+        Optional<Integer> min = basket.getBookQuantities().values().stream()
+                .filter(i -> i > 0)
+                .min(Comparator.naturalOrder());
+
+        while (min.isPresent()) {
+            // generate a discount summary for each group
+            DiscountDto discount = new DiscountDto();
+            basketPrice.getDiscounts().add(discount);
+
+            discount.setCopies(min.get());
+            discount.setBooks(new ArrayList<>());
+
+            // add book copies
+            basket.getBookQuantities().entrySet().stream()
+                    .filter(entry -> entry.getValue() > 0)
+                    .forEach(entry -> {
+                        entry.setValue(entry.getValue() - discount.getCopies());
+                        discount.getBooks().add(new BookDto());
+                    });
+
+            discount.setRate(calculateDiscount(discount.getBooks().size()));
+            discount.setUnitPrice(BOOK_PRICE * (1 - discount.getRate()));
+
+            min = basket.getBookQuantities().values().stream()
+                    .filter(i -> i > 0)
+                    .min(Comparator.naturalOrder());
+        }
 
         return basketPrice;
     }
@@ -36,9 +63,12 @@ public class DevelopmentBooksService implements IDevelopmentBooksService {
             case 3: {
                 return THREE_DIFFERENT_BOOKS_DISCOUNT;
             }
-            default:
             case 4: {
                 return FOUR_DIFFERENT_BOOKS_DISCOUNT;
+            }
+            default:
+            case 5: {
+                return FIVE_DIFFERENT_BOOKS_DISCOUNT;
             }
         }
     }
