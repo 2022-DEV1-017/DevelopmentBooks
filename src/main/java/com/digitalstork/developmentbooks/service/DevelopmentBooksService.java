@@ -13,18 +13,18 @@ public class DevelopmentBooksService implements IDevelopmentBooksService {
     @Override
     public BasketPriceDto calculatePrice(BasketDto basket) {
 
+        DiscountDto discount = new DiscountDto();
+        BasketPriceDto basketPrice = new BasketPriceDto();
+        basketPrice.setDiscounts(Collections.singleton(discount));
+
         if (basket.getBookQuantities().size() == 1) {
-            DiscountDto discount = new DiscountDto();
             discount.setRate(0.0);
             discount.setUnitPrice(BOOK_PRICE);
-
-            BasketPriceDto basketPrice = new BasketPriceDto();
-            basketPrice.setDiscounts(Collections.singleton(discount));
-
-            return basketPrice;
-        } else {
-            return null;
+        } else if (basket.getBookQuantities().size() == 2) {
+            discount.setRate(0.05);
+            discount.setUnitPrice(BOOK_PRICE * (1 - 0.05));
         }
+        return basketPrice;
     }
 
 }
