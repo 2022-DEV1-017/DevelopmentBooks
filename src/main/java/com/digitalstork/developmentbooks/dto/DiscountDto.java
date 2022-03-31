@@ -13,7 +13,7 @@ public class DiscountDto {
 
     private Collection<BookDto> books;
 
-    private Float rate;
+    private Double rate;
 
     private Double unitPrice;
 }

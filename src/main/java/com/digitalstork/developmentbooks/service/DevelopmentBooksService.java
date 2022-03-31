@@ -15,7 +15,7 @@ public class DevelopmentBooksService implements IDevelopmentBooksService {
 
         if (basket.getBookQuantities().size() == 1) {
             DiscountDto discount = new DiscountDto();
-            discount.setRate(0F);
+            discount.setRate(0.0);
             discount.setUnitPrice(BOOK_PRICE);
 
             BasketPriceDto basketPrice = new BasketPriceDto();

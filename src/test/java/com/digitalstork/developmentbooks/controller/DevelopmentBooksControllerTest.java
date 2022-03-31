@@ -48,7 +48,7 @@ public class DevelopmentBooksControllerTest {
 
         DiscountDto discount = DiscountDto.builder()
                 .books(Collections.singleton(book))
-                .rate(0F)
+                .rate(0.0)
                 .unitPrice(50.0)
                 .build();
 
