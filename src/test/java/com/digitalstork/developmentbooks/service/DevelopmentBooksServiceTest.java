@@ -11,8 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.HashMap;
 
 import static com.digitalstork.developmentbooks.constants.DevelopmentBooksConstants.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 public class DevelopmentBooksServiceTest {
@@ -141,5 +140,46 @@ public class DevelopmentBooksServiceTest {
 
         assertEquals(FIVE_DIFFERENT_BOOKS_DISCOUNT, discount.getRate());
         assertEquals(BOOK_PRICE * (1 - discount.getRate()), discount.getUnitPrice());
+    }
+
+    @Test
+    void should_apply_10_percent_discount_for_3_different_books_and_no_discount_for_duplicate_copy() {
+        // Given
+        BasketDto basket = BasketDto.builder()
+                .bookQuantities(new HashMap<>() {{
+                    put("1", 2);
+                    put("2", 1);
+                    put("3", 1);
+                }})
+                .build();
+
+        // When
+        BasketPriceDto basketPrice = developmentBooksService.calculatePrice(basket);
+
+        // Assertions
+        assertNotNull(basketPrice);
+        assertNotNull(basketPrice.getDiscounts());
+        assertEquals(2, basketPrice.getDiscounts().size());
+
+        DiscountDto discount10 = basketPrice.getDiscounts().stream()
+                .filter(i -> THREE_DIFFERENT_BOOKS_DISCOUNT.equals(i.getRate()))
+                .findAny()
+                .orElse(null);
+
+        assertNotNull(discount10);
+        assertNotNull(discount10.getBooks());
+        assertEquals(3, discount10.getBooks().size());
+        assertEquals(1, discount10.getCopies());
+
+        DiscountDto discount0 = basketPrice.getDiscounts().stream()
+                .filter(i -> NO_DISCOUNT.equals(i.getRate()))
+                .findAny()
+                .orElse(null);
+
+        assertNotNull(discount0);
+        assertNotEquals(discount0, discount10);
+        assertNotNull(discount0.getBooks());
+        assertEquals(1, discount0.getBooks().size());
+        assertEquals(1, discount0.getCopies());
     }
 }

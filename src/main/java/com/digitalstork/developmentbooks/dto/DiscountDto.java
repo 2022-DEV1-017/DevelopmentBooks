@@ -16,4 +16,6 @@ public class DiscountDto {
     private Double rate;
 
     private Double unitPrice;
+
+    private Integer copies;
 }
