@@ -182,4 +182,61 @@ public class DevelopmentBooksServiceTest {
         assertEquals(1, discount0.getBooks().size());
         assertEquals(1, discount0.getCopies());
     }
+
+    @Test
+    void should_process_total_price_of_basket() {
+        // Given
+        BasketDto basket = BasketDto.builder()
+                .bookQuantities(new HashMap<>() {{
+                    put("1", 2);
+                    put("2", 2);
+                    put("3", 2);
+                    put("4", 1);
+                    put("5", 1);
+                }})
+                .build();
+
+        // When
+        BasketPriceDto basketPrice = developmentBooksService.calculatePrice(basket);
+
+        // Assertions
+        assertNotNull(basketPrice);
+        assertNotNull(basketPrice.getDiscounts());
+        assertEquals(2, basketPrice.getDiscounts().size());
+
+        DiscountDto discount25 = basketPrice.getDiscounts().stream()
+                .filter(i -> FIVE_DIFFERENT_BOOKS_DISCOUNT.equals(i.getRate()))
+                .findAny()
+                .orElse(null);
+
+        assertNotNull(discount25);
+        assertNotNull(discount25.getBooks());
+
+        DiscountDto discount10 = basketPrice.getDiscounts().stream()
+                .filter(i -> THREE_DIFFERENT_BOOKS_DISCOUNT.equals(i.getRate()))
+                .findAny()
+                .orElse(null);
+
+        assertNotNull(discount10);
+        assertNotEquals(discount10, discount25);
+        assertNotNull(discount10.getBooks());
+
+        assertEquals(50.0, BOOK_PRICE);
+        assertEquals(0.10, THREE_DIFFERENT_BOOKS_DISCOUNT);
+        assertEquals(0.25, FIVE_DIFFERENT_BOOKS_DISCOUNT);
+
+        assertEquals(5, discount25.getBooks().size());
+        assertEquals(1, discount25.getCopies());
+        assertEquals(BOOK_PRICE * (1 - discount25.getRate()), discount25.getUnitPrice());
+
+        assertEquals(3, discount10.getBooks().size());
+        assertEquals(1, discount10.getCopies());
+        assertEquals(BOOK_PRICE * (1 - discount10.getRate()), discount10.getUnitPrice());
+
+        Double price =
+                5 * discount25.getUnitPrice() * discount25.getCopies() +
+                        3 * discount10.getUnitPrice() * discount10.getCopies();
+
+        assertEquals(price, basketPrice.getTotalPrice());
+    }
 }
