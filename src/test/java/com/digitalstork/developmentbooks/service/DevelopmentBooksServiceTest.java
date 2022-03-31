@@ -37,6 +37,6 @@ public class DevelopmentBooksServiceTest {
         assertEquals(1, basketPrice.getDiscounts().size());
         DiscountDto discount = basketPrice.getDiscounts().stream().findAny().orElseThrow();
         assertEquals(0, discount.getRate());
-        assertEquals(50.0, discount.getUnitPrice());
+        assertEquals(IDevelopmentBooksService.BOOK_PRICE, discount.getUnitPrice());
     }
 }
