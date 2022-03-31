@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 
+import static com.digitalstork.developmentbooks.constants.DevelopmentBooksConstants.*;
+
 @Service
 public class DevelopmentBooksService implements IDevelopmentBooksService {
 
@@ -14,17 +16,24 @@ public class DevelopmentBooksService implements IDevelopmentBooksService {
     public BasketPriceDto calculatePrice(BasketDto basket) {
 
         DiscountDto discount = new DiscountDto();
+        discount.setRate(calculateDiscount(basket.getBookQuantities().size()));
+        discount.setUnitPrice(BOOK_PRICE * (1 - discount.getRate()));
+
         BasketPriceDto basketPrice = new BasketPriceDto();
         basketPrice.setDiscounts(Collections.singleton(discount));
 
-        if (basket.getBookQuantities().size() == 1) {
-            discount.setRate(0.0);
-            discount.setUnitPrice(BOOK_PRICE);
-        } else if (basket.getBookQuantities().size() == 2) {
-            discount.setRate(0.05);
-            discount.setUnitPrice(BOOK_PRICE * (1 - 0.05));
-        }
         return basketPrice;
     }
 
+    private Double calculateDiscount(int numberOfDifferentBooks) {
+        switch (numberOfDifferentBooks) {
+            case 1: {
+                return NO_DISCOUNT;
+            }
+            default:
+            case 2: {
+                return TWO_DIFFERENT_BOOKS_DISCOUNT;
+            }
+        }
+    }
 }

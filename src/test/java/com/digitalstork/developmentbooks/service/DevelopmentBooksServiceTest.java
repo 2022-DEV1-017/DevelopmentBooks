@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.HashMap;
 
+import static com.digitalstork.developmentbooks.constants.DevelopmentBooksConstants.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -36,8 +37,8 @@ public class DevelopmentBooksServiceTest {
         assertNotNull(basketPrice.getDiscounts());
         assertEquals(1, basketPrice.getDiscounts().size());
         DiscountDto discount = basketPrice.getDiscounts().stream().findAny().orElseThrow();
-        assertEquals(0, discount.getRate());
-        assertEquals(IDevelopmentBooksService.BOOK_PRICE, discount.getUnitPrice());
+        assertEquals(NO_DISCOUNT, discount.getRate());
+        assertEquals(BOOK_PRICE * (1 - discount.getRate()), discount.getUnitPrice());
     }
 
     @Test
@@ -60,7 +61,7 @@ public class DevelopmentBooksServiceTest {
 
         DiscountDto discount = basketPrice.getDiscounts().stream().findAny().orElseThrow();
 
-        assertEquals(0.05, discount.getRate());
-        assertEquals(IDevelopmentBooksService.BOOK_PRICE * (1 - 0.05), discount.getUnitPrice());
+        assertEquals(TWO_DIFFERENT_BOOKS_DISCOUNT, discount.getRate());
+        assertEquals(BOOK_PRICE * (1 - discount.getRate()), discount.getUnitPrice());
     }
 }
