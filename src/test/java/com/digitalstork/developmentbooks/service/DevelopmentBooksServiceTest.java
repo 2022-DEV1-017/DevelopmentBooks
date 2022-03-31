@@ -115,4 +115,31 @@ public class DevelopmentBooksServiceTest {
         assertEquals(FOUR_DIFFERENT_BOOKS_DISCOUNT, discount.getRate());
         assertEquals(BOOK_PRICE * (1 - discount.getRate()), discount.getUnitPrice());
     }
+
+    @Test
+    void should_apply_25_percent_discount_if_5_different_books() {
+        // Given
+        BasketDto basket = BasketDto.builder()
+                .bookQuantities(new HashMap<>() {{
+                    put("1", 1);
+                    put("2", 1);
+                    put("3", 1);
+                    put("4", 1);
+                    put("5", 1);
+                }})
+                .build();
+
+        // When
+        BasketPriceDto basketPrice = developmentBooksService.calculatePrice(basket);
+
+        // Assertions
+        assertNotNull(basketPrice);
+        assertNotNull(basketPrice.getDiscounts());
+        assertEquals(1, basketPrice.getDiscounts().size());
+
+        DiscountDto discount = basketPrice.getDiscounts().stream().findAny().orElseThrow();
+
+        assertEquals(FIVE_DIFFERENT_BOOKS_DISCOUNT, discount.getRate());
+        assertEquals(BOOK_PRICE * (1 - discount.getRate()), discount.getUnitPrice());
+    }
 }
