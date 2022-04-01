@@ -60,6 +60,11 @@ client.
 
 This application defines the following endpoints:
 
+- Retrieve all available books :
+
+        GET /api/books
+
+
 - Calculate the cart's total price :
 
         POST /api/books-cart/calculate-price
