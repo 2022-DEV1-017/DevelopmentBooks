@@ -36,7 +36,7 @@ This application will be packaged as a jar which have Tomcat embedded, you can f
 
         mvn clean install
 
-   Or you can build and package and skip running tests using the following command:
+   Or you can build and package it without running tests using the following command:
 
         mvn clean install -DskipTests
 
@@ -44,7 +44,7 @@ This application will be packaged as a jar which have Tomcat embedded, you can f
 
         mvn spring-boot:run
 
-   Alternatively, you can move to ` ./target ` and run the app without packaging it using:
+   Alternatively, you can move to ` ./target ` and run the app if it's already packaged using:
 
         java -jar development-books-0.0.1-SNAPSHOT.jar
 
