@@ -17,6 +17,7 @@ import java.util.Optional;
 
 import static com.digitalstork.developmentbooks.constants.DevelopmentBooksConstants.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,6 +39,7 @@ public class DevelopmentBooksServiceTest {
                 .build();
 
         // When
+        when(bookRepository.findBookByExternalCode(anyString())).thenReturn(Optional.of(new Book()));
         BasketPriceDto basketPrice = developmentBooksService.calculatePrice(basket);
 
         // Assertions
@@ -60,6 +62,7 @@ public class DevelopmentBooksServiceTest {
                 .build();
 
         // When
+        when(bookRepository.findBookByExternalCode(anyString())).thenReturn(Optional.of(new Book()));
         BasketPriceDto basketPrice = developmentBooksService.calculatePrice(basket);
 
         // Assertions
@@ -85,6 +88,7 @@ public class DevelopmentBooksServiceTest {
                 .build();
 
         // When
+        when(bookRepository.findBookByExternalCode(anyString())).thenReturn(Optional.of(new Book()));
         BasketPriceDto basketPrice = developmentBooksService.calculatePrice(basket);
 
         // Assertions
@@ -111,6 +115,7 @@ public class DevelopmentBooksServiceTest {
                 .build();
 
         // When
+        when(bookRepository.findBookByExternalCode(anyString())).thenReturn(Optional.of(new Book()));
         BasketPriceDto basketPrice = developmentBooksService.calculatePrice(basket);
 
         // Assertions
@@ -138,6 +143,7 @@ public class DevelopmentBooksServiceTest {
                 .build();
 
         // When
+        when(bookRepository.findBookByExternalCode(anyString())).thenReturn(Optional.of(new Book()));
         BasketPriceDto basketPrice = developmentBooksService.calculatePrice(basket);
 
         // Assertions
@@ -163,6 +169,7 @@ public class DevelopmentBooksServiceTest {
                 .build();
 
         // When
+        when(bookRepository.findBookByExternalCode(anyString())).thenReturn(Optional.of(new Book()));
         BasketPriceDto basketPrice = developmentBooksService.calculatePrice(basket);
 
         // Assertions
@@ -206,6 +213,7 @@ public class DevelopmentBooksServiceTest {
                 .build();
 
         // When
+        when(bookRepository.findBookByExternalCode(anyString())).thenReturn(Optional.of(new Book()));
         BasketPriceDto basketPrice = developmentBooksService.calculatePrice(basket);
 
         // Assertions
