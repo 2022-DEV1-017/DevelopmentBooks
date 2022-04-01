@@ -6,10 +6,13 @@ import com.digitalstork.developmentbooks.dto.BookDto;
 import com.digitalstork.developmentbooks.dto.DiscountDto;
 import com.digitalstork.developmentbooks.service.DevelopmentBooksService;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Collections;
@@ -21,11 +24,17 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class DevelopmentBooksControllerTest {
 
     @InjectMocks
     private DevelopmentBooksController developmentBooksController;
+
+    @LocalServerPort
+    private int port;
+
+    @Autowired
+    private TestRestTemplate restTemplate;
 
     @Mock
     private DevelopmentBooksService developmentBooksService;
@@ -66,4 +75,32 @@ public class DevelopmentBooksControllerTest {
         assertNotNull(response);
         assertEquals(basketPrice, response.getBody());
     }
+
+    @Test
+    void should_return_ok_and_price_details_when_calling_calculate_price_endpoint_with_correct_body() {
+        // Given
+        String url = "http://localhost:" + port + "/api/development-books/calculate-price";
+        BasketDto basket = BasketDto.builder()
+                .bookQuantities(new HashMap<>() {{
+                    put("1", 1);
+                }})
+                .build();
+
+        BasketPriceDto basketPrice = BasketPriceDto.builder()
+                .totalPrice(50.0)
+                .build();
+
+        // When
+        when(developmentBooksService.calculatePrice(any(BasketDto.class)))
+                .thenReturn(basketPrice);
+
+        ResponseEntity<BasketPriceDto> response = restTemplate.postForEntity(url, basket, BasketPriceDto.class);
+
+        // Test Assertions
+        assertNotNull(response);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(50.0, response.getBody().getTotalPrice());
+    }
+
 }
