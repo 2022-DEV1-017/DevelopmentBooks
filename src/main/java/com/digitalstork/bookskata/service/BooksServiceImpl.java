@@ -7,6 +7,8 @@ import com.digitalstork.bookskata.mapper.BookMapper;
 import com.digitalstork.bookskata.repository.BookRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
+
 @Service
 public class BooksServiceImpl implements BooksService {
 
@@ -23,4 +25,8 @@ public class BooksServiceImpl implements BooksService {
         return bookMapper.apply(book);
     }
 
+    @Override
+    public Collection<BookDto> getAllBooks() {
+        return null;
+    }
 }
