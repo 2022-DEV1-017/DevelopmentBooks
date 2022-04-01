@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+
 @RestController()
 @RequestMapping("/api/development-books")
 public class DevelopmentBooksController {
@@ -20,7 +22,7 @@ public class DevelopmentBooksController {
     }
 
     @PostMapping("/calculate-price")
-    ResponseEntity<BasketPriceDto> calculatePrice(@RequestBody BasketDto basket) {
+    ResponseEntity<BasketPriceDto> calculatePrice(@RequestBody @Valid BasketDto basket) {
         return ResponseEntity.ok(developmentBooksService.calculatePrice(basket));
     }
 
