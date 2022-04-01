@@ -1,23 +1,32 @@
 package com.digitalstork.developmentbooks.service;
 
+import com.digitalstork.developmentbooks.domain.Book;
 import com.digitalstork.developmentbooks.dto.BasketDto;
 import com.digitalstork.developmentbooks.dto.BasketPriceDto;
+import com.digitalstork.developmentbooks.dto.BookDto;
 import com.digitalstork.developmentbooks.dto.DiscountDto;
+import com.digitalstork.developmentbooks.repository.BookRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.HashMap;
+import java.util.Optional;
 
 import static com.digitalstork.developmentbooks.constants.DevelopmentBooksConstants.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class DevelopmentBooksServiceTest {
 
     @InjectMocks
     private DevelopmentBooksService developmentBooksService;
+
+    @Mock
+    private BookRepository bookRepository;
 
     @Test
     void should_not_apply_discount_if_one_copy_only() {
@@ -238,5 +247,54 @@ public class DevelopmentBooksServiceTest {
                         3 * discount10.getUnitPrice() * discount10.getCopies();
 
         assertEquals(price, basketPrice.getTotalPrice());
+    }
+
+    @Test
+    void should_return_basket_book_details() {
+
+        // Given
+        BasketDto basket = BasketDto.builder()
+                .bookQuantities(new HashMap<>() {{
+                    put("1", 1);
+                }})
+                .build();
+
+        Book bookEntity = Book.builder()
+                .id(1L)
+                .externalCode("1")
+                .name("Clean Code")
+                .author("Robert Martin")
+                .year(2008)
+                .build();
+
+        BookDto bookDto = BookDto.builder()
+                .externalCode("1")
+                .name("Clean Code")
+                .author("Robert Martin")
+                .year(2008)
+                .build();
+
+        // When
+        when(bookRepository.findBookByExternalCode("1")).thenReturn(Optional.of(bookEntity));
+        BasketPriceDto basketPrice = developmentBooksService.calculatePrice(basket);
+
+        // Assertions
+        assertNotNull(basketPrice);
+        assertNotNull(basketPrice.getDiscounts());
+        assertEquals(1, basketPrice.getDiscounts().size());
+
+        DiscountDto discount = basketPrice.getDiscounts().stream().findAny().orElseThrow();
+
+        assertNotNull(discount);
+        assertNotNull(discount.getBooks());
+        assertEquals(1, discount.getBooks().size());
+
+        BookDto discountBook = discount.getBooks().stream().findAny().orElseThrow();
+
+        assertNotNull(discountBook);
+        assertEquals(bookDto.getExternalCode(), discountBook.getExternalCode());
+        assertEquals(bookDto.getName(), discountBook.getName());
+        assertEquals(bookDto.getAuthor(), discountBook.getAuthor());
+        assertEquals(bookDto.getYear(), discountBook.getYear());
     }
 }
