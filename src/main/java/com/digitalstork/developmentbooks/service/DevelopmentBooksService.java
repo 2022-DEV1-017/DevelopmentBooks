@@ -4,6 +4,7 @@ import com.digitalstork.developmentbooks.dto.BasketDto;
 import com.digitalstork.developmentbooks.dto.BasketPriceDto;
 import com.digitalstork.developmentbooks.dto.BookDto;
 import com.digitalstork.developmentbooks.dto.DiscountDto;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -11,6 +12,7 @@ import java.util.*;
 import static com.digitalstork.developmentbooks.constants.DevelopmentBooksConstants.*;
 
 @Service
+@Slf4j
 public class DevelopmentBooksService implements IDevelopmentBooksService {
 
     private final IBooksService booksService;
@@ -21,11 +23,21 @@ public class DevelopmentBooksService implements IDevelopmentBooksService {
 
     @Override
     public BasketPriceDto calculatePrice(BasketDto basket) {
+
+        if (log.isInfoEnabled()) {
+            log.info("Calculating price ...");
+        }
+
         Collection<DiscountDto> discounts = new ArrayList<>();
         double totalPrice = 0.0;
 
         // calculate a discount while there are still remaining book copies in basket
         while (true) {
+
+            if (log.isInfoEnabled()) {
+                log.info("Basket has {}", basket.getBookQuantities());
+            }
+
             // calculate maximum number of copies of the same different books
             Optional<Integer> optionalMin = basket.getBookQuantities().values().stream()
                     .filter(i -> i > 0)
@@ -40,7 +52,10 @@ public class DevelopmentBooksService implements IDevelopmentBooksService {
 
             discounts.add(discount);
             totalPrice += discount.getUnitPrice() * discount.getBooks().size() * discount.getCopies();
+        }
 
+        if (log.isInfoEnabled()) {
+            log.info("Total Price is : {}", totalPrice);
         }
 
         return BasketPriceDto.builder()
@@ -59,6 +74,10 @@ public class DevelopmentBooksService implements IDevelopmentBooksService {
                     books.add(booksService.getBook(entry.getKey()));
                     entry.setValue(entry.getValue() - copies);
                 });
+
+        if (log.isInfoEnabled()) {
+            log.info("Taking {} copy of {}", copies, books);
+        }
 
         Double rate = calculateDiscount(books.size());
 

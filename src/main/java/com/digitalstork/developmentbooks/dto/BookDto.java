@@ -22,4 +22,8 @@ public class BookDto {
     @Schema(description = "Year of the book", example = "2008")
     private Integer year;
 
+    @Override
+    public String toString() {
+        return externalCode + ". " + name + " (" + author + ", " + year + ")";
+    }
 }
