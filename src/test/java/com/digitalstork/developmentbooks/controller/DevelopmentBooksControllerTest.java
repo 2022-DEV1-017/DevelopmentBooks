@@ -6,6 +6,7 @@ import com.digitalstork.developmentbooks.dto.BookDto;
 import com.digitalstork.developmentbooks.dto.DiscountDto;
 import com.digitalstork.developmentbooks.exceptions.ApiError;
 import com.digitalstork.developmentbooks.exceptions.ErrorCode;
+import com.digitalstork.developmentbooks.exceptions.UnavailableBookException;
 import com.digitalstork.developmentbooks.service.DevelopmentBooksService;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -129,4 +130,25 @@ public class DevelopmentBooksControllerTest {
         assertEquals("bookQuantities must be provided !", subErrors.get(0));
     }
 
+    @Test
+    void should_return_bad_request_https_status_when_calling_calculate_price_endpoint_with_unavailable_book() {
+        // Given
+        String url = "http://localhost:" + port + "/api/development-books/calculate-price";
+        BasketDto basket = BasketDto.builder()
+                .bookQuantities(new HashMap<>() {{
+                    put("7", 1);
+                }})
+                .build();
+
+        // When
+        when(developmentBooksService.calculatePrice(any(BasketDto.class))).thenThrow(new UnavailableBookException("7"));
+        ResponseEntity<ApiError> response = restTemplate.postForEntity(url, basket, ApiError.class);
+
+        // Test Assertions
+        assertNotNull(response);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(ErrorCode.RESOURCE_NOT_FOUND.name(), response.getBody().getErrorCode());
+        assertEquals("The following book is not available : 7", response.getBody().getMessage());
+    }
 }
