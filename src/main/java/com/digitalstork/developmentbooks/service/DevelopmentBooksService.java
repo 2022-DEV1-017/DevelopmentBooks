@@ -1,71 +1,73 @@
 package com.digitalstork.developmentbooks.service;
 
-import com.digitalstork.developmentbooks.domain.Book;
 import com.digitalstork.developmentbooks.dto.BasketDto;
 import com.digitalstork.developmentbooks.dto.BasketPriceDto;
+import com.digitalstork.developmentbooks.dto.BookDto;
 import com.digitalstork.developmentbooks.dto.DiscountDto;
-import com.digitalstork.developmentbooks.mapper.BookMapper;
-import com.digitalstork.developmentbooks.repository.BookRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Optional;
+import java.util.*;
 
 import static com.digitalstork.developmentbooks.constants.DevelopmentBooksConstants.*;
 
 @Service
 public class DevelopmentBooksService implements IDevelopmentBooksService {
 
-    private final BookRepository bookRepository;
-    private final BookMapper bookMapper = new BookMapper();
+    private final IBooksService booksService;
 
-    public DevelopmentBooksService(BookRepository bookRepository) {
-        this.bookRepository = bookRepository;
+    public DevelopmentBooksService(IBooksService booksService) {
+        this.booksService = booksService;
     }
 
     @Override
     public BasketPriceDto calculatePrice(BasketDto basket) {
-        BasketPriceDto basketPrice = new BasketPriceDto();
-        basketPrice.setDiscounts(new ArrayList<>());
+        Collection<DiscountDto> discounts = new ArrayList<>();
         double totalPrice = 0.0;
 
-        // calculate maximum number of copies of the same different books
-        Optional<Integer> min = basket.getBookQuantities().values().stream()
-                .filter(i -> i > 0)
-                .min(Comparator.naturalOrder());
-
-        while (min.isPresent()) {
-            // generate a discount summary for each group
-            DiscountDto discount = new DiscountDto();
-            basketPrice.getDiscounts().add(discount);
-
-            discount.setCopies(min.get());
-            discount.setBooks(new ArrayList<>());
-
-            // add book copies
-            basket.getBookQuantities().entrySet().stream()
-                    .filter(entry -> entry.getValue() > 0)
-                    .forEach(entry -> {
-                        entry.setValue(entry.getValue() - discount.getCopies());
-                        Book book = bookRepository.findBookByExternalCode(entry.getKey()).orElseThrow();
-                        discount.getBooks().add(
-                                bookMapper.apply(book)
-                        );
-                    });
-
-            discount.setRate(calculateDiscount(discount.getBooks().size()));
-            discount.setUnitPrice(BOOK_PRICE * (1 - discount.getRate()));
-
-            totalPrice += discount.getUnitPrice() * discount.getBooks().size() * discount.getCopies();
-
-            min = basket.getBookQuantities().values().stream()
+        // calculate a discount while there are still remaining book copies in basket
+        while (true) {
+            // calculate maximum number of copies of the same different books
+            Optional<Integer> optionalMin = basket.getBookQuantities().values().stream()
                     .filter(i -> i > 0)
                     .min(Comparator.naturalOrder());
-        }
-        basketPrice.setTotalPrice(totalPrice);
 
-        return basketPrice;
+            if (optionalMin.isEmpty()) {
+                break;
+            }
+
+            // generate a discount summary for each group
+            DiscountDto discount = processDiscount(optionalMin.get(), basket.getBookQuantities());
+
+            discounts.add(discount);
+            totalPrice += discount.getUnitPrice() * discount.getBooks().size() * discount.getCopies();
+
+        }
+
+        return BasketPriceDto.builder()
+                .discounts(discounts)
+                .totalPrice(totalPrice)
+                .build();
+    }
+
+    private DiscountDto processDiscount(Integer copies, Map<String, Integer> bookQuantities) {
+
+        // take a number of copies for each available
+        Collection<BookDto> books = new ArrayList<>();
+        bookQuantities.entrySet().stream()
+                .filter(entry -> entry.getValue() > 0)
+                .forEach(entry -> {
+                    books.add(booksService.getBook(entry.getKey()));
+                    entry.setValue(entry.getValue() - copies);
+                });
+
+        Double rate = calculateDiscount(books.size());
+
+        return DiscountDto.builder()
+                .copies(copies)
+                .books(books)
+                .rate(rate)
+                .unitPrice(BOOK_PRICE * (1 - rate))
+                .build();
     }
 
     private Double calculateDiscount(int numberOfDifferentBooks) {
