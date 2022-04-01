@@ -1,9 +1,11 @@
 package com.digitalstork.developmentbooks.service;
 
+import com.digitalstork.developmentbooks.domain.Book;
 import com.digitalstork.developmentbooks.dto.BasketDto;
 import com.digitalstork.developmentbooks.dto.BasketPriceDto;
-import com.digitalstork.developmentbooks.dto.BookDto;
 import com.digitalstork.developmentbooks.dto.DiscountDto;
+import com.digitalstork.developmentbooks.mapper.BookMapper;
+import com.digitalstork.developmentbooks.repository.BookRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -14,6 +16,13 @@ import static com.digitalstork.developmentbooks.constants.DevelopmentBooksConsta
 
 @Service
 public class DevelopmentBooksService implements IDevelopmentBooksService {
+
+    private final BookRepository bookRepository;
+    private final BookMapper bookMapper = new BookMapper();
+
+    public DevelopmentBooksService(BookRepository bookRepository) {
+        this.bookRepository = bookRepository;
+    }
 
     @Override
     public BasketPriceDto calculatePrice(BasketDto basket) {
@@ -39,7 +48,10 @@ public class DevelopmentBooksService implements IDevelopmentBooksService {
                     .filter(entry -> entry.getValue() > 0)
                     .forEach(entry -> {
                         entry.setValue(entry.getValue() - discount.getCopies());
-                        discount.getBooks().add(new BookDto());
+                        Book book = bookRepository.findBookByExternalCode(entry.getKey()).orElseThrow();
+                        discount.getBooks().add(
+                                bookMapper.apply(book)
+                        );
                     });
 
             discount.setRate(calculateDiscount(discount.getBooks().size()));
