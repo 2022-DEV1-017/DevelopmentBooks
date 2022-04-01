@@ -2,6 +2,7 @@ package com.digitalstork.developmentbooks.service;
 
 import com.digitalstork.developmentbooks.domain.Book;
 import com.digitalstork.developmentbooks.dto.BookDto;
+import com.digitalstork.developmentbooks.exceptions.UnavailableBookException;
 import com.digitalstork.developmentbooks.repository.BookRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,8 +12,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -45,6 +46,19 @@ public class BooksServiceTest {
         assertEquals(book.getName(), bookDto.getName());
         assertEquals(book.getAuthor(), bookDto.getAuthor());
         assertEquals(book.getYear(), bookDto.getYear());
+    }
+
+    @Test
+    void should_throw_UnavailableBookException_when_bad_book_externalCode() {
+        // Given
+
+        // When
+        when(bookRepository.findBookByExternalCode(anyString())).thenReturn(Optional.empty());
+
+        // Assertions
+        UnavailableBookException illegalScoreException = assertThrows(UnavailableBookException.class, () -> booksService.getBook("6"));
+
+        assertEquals("The following book is not available : 6", illegalScoreException.getMessage());
     }
 
 }
