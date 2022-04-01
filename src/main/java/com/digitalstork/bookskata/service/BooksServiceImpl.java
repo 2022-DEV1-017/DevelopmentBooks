@@ -8,6 +8,7 @@ import com.digitalstork.bookskata.repository.BookRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 @Service
 public class BooksServiceImpl implements BooksService {
@@ -27,6 +28,6 @@ public class BooksServiceImpl implements BooksService {
 
     @Override
     public Collection<BookDto> getAllBooks() {
-        return null;
+        return bookRepository.findAll().stream().map(bookMapper).collect(Collectors.toList());
     }
 }
