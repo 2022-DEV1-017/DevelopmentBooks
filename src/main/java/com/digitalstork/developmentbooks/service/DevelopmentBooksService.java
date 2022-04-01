@@ -19,6 +19,7 @@ public class DevelopmentBooksService implements IDevelopmentBooksService {
     public BasketPriceDto calculatePrice(BasketDto basket) {
         BasketPriceDto basketPrice = new BasketPriceDto();
         basketPrice.setDiscounts(new ArrayList<>());
+        double totalPrice = 0.0;
 
         // calculate maximum number of copies of the same different books
         Optional<Integer> min = basket.getBookQuantities().values().stream()
@@ -44,10 +45,13 @@ public class DevelopmentBooksService implements IDevelopmentBooksService {
             discount.setRate(calculateDiscount(discount.getBooks().size()));
             discount.setUnitPrice(BOOK_PRICE * (1 - discount.getRate()));
 
+            totalPrice += discount.getUnitPrice() * discount.getBooks().size() * discount.getCopies();
+
             min = basket.getBookQuantities().values().stream()
                     .filter(i -> i > 0)
                     .min(Comparator.naturalOrder());
         }
+        basketPrice.setTotalPrice(totalPrice);
 
         return basketPrice;
     }
