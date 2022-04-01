@@ -9,6 +9,11 @@ public class BookMapper implements Function<Book, BookDto> {
 
     @Override
     public BookDto apply(Book book) {
-        return null;
+        return BookDto.builder()
+                .externalCode(book.getExternalCode())
+                .name(book.getName())
+                .author(book.getAuthor())
+                .year(book.getYear())
+                .build();
     }
 }
