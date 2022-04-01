@@ -1,6 +1,7 @@
 package com.digitalstork.bookskata.controller;
 
 import com.digitalstork.bookskata.dto.BookDto;
+import com.digitalstork.bookskata.service.BooksService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -19,13 +20,19 @@ import java.util.Collection;
 @RequestMapping("/api/books")
 public class BooksController {
 
+    private final BooksService booksService;
+
+    public BooksController(BooksService booksService) {
+        this.booksService = booksService;
+    }
+
     @Operation(summary = "API to get all available books")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Returns all available books", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = BookDto.class))}),
     })
     @GetMapping()
     ResponseEntity<Collection<BookDto>> getAllBooks() {
-        return null;
+        return ResponseEntity.ok(booksService.getAllBooks());
     }
 
 }
