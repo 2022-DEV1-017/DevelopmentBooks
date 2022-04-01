@@ -22,9 +22,15 @@ here: https://github.com/stephane-genicot/katas/blob/master/DevelopmentBooks.md
 
 This application will be packaged as a jar which have Tomcat embedded, you can follow these steps to run it:
 
-1. Clone this repository:
+1. Clone this repository using HTTPS:
 
-        git clone https://github.com/2022-DEV1-017/DevelopmentBooks
+        git clone https://github.com/2022-DEV1-017/DevelopmentBooks.git
+
+   Or using SSH :
+
+        git clone git@github.com:2022-DEV1-017/DevelopmentBooks.git
+
+
 2. Make sure you have JDK 11 and maven installed
 3. Build and package the application using the following maven command:
 
