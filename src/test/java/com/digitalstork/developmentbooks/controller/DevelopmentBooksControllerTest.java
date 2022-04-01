@@ -4,6 +4,8 @@ import com.digitalstork.developmentbooks.dto.BasketDto;
 import com.digitalstork.developmentbooks.dto.BasketPriceDto;
 import com.digitalstork.developmentbooks.dto.BookDto;
 import com.digitalstork.developmentbooks.dto.DiscountDto;
+import com.digitalstork.developmentbooks.exceptions.ApiError;
+import com.digitalstork.developmentbooks.exceptions.ErrorCode;
 import com.digitalstork.developmentbooks.service.DevelopmentBooksService;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -17,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -101,6 +104,29 @@ public class DevelopmentBooksControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(50.0, response.getBody().getTotalPrice());
+    }
+
+
+    @Test
+    void should_return_bad_request_https_status_when_calling_calculate_price_endpoint_with_null_book_quantities() {
+        // Given
+        String url = "http://localhost:" + port + "/api/development-books/calculate-price";
+        BasketDto basket = BasketDto.builder()
+                .build();
+
+        // When
+        ResponseEntity<ApiError> response = restTemplate.postForEntity(url, basket, ApiError.class);
+
+        // Test Assertions
+        assertNotNull(response);
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(ErrorCode.DATA_VALIDATION.name(), response.getBody().getErrorCode());
+
+        List<String> subErrors = response.getBody().getSubErrors();
+
+        assertEquals(1, subErrors.size());
+        assertEquals("bookQuantities must be provided !", subErrors.get(0));
     }
 
 }
