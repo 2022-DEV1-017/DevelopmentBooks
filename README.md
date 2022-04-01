@@ -52,7 +52,7 @@ This application will be packaged as a jar which have Tomcat embedded, you can f
 
 The app will start running at http://localhost:8080.
 
-# Explore Game APIs
+# Explore Application APIs
 
 All APIs are "self-documented" by OpenApi 3.0 using annotations. To view the API docs, run the application and browse
 to: http://localhost:8080/swagger-ui.html . You can test them directly from this Swagger UI or using any other rest

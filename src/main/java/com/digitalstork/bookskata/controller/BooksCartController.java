@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
-@Tag(name = "Books Controller", description = "Use this APIs to get development books discounts")
+@Tag(name = "Books Cart Controller", description = "Use this APIs to get development books discounts")
 @RestController()
 @RequestMapping("/api/books-cart")
 public class BooksCartController {
